@@ -103,6 +103,7 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: true
               description: Partial state to merge with the current blob
       responses:
         "200":
