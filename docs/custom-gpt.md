@@ -50,9 +50,11 @@ After each successful action call, briefly confirm what was stored (e.g., “I�
 
 ## Actions
 
-Create a single HTTP action named **`user_state`** pointing to your deployed worker (replace `{BASE_URL}` with the worker URL).
+Create a single HTTP action named **`user_state`** pointing to your deployed worker. For the current worker deployment, set the server URL to `https://crimson-tree-74b8.pry94dkr48.workers.dev`.
 
 ### OpenAPI schema
+
+Paste the following schema into the GPT action definition (replace nothing—this already uses the live worker URL):
 
 ```yaml
 openapi: 3.1.0
@@ -60,7 +62,7 @@ info:
   title: User state store
   version: 1.0.0
 servers:
-  - url: {BASE_URL}
+  - url: https://crimson-tree-74b8.pry94dkr48.workers.dev
 paths:
   /state/{userId}:
     get:
@@ -80,8 +82,10 @@ paths:
               schema:
                 type: object
                 properties:
-                  userId: { type: string }
-                  data: { type: object }
+                  userId:
+                    type: string
+                  data:
+                    type: object
         "404":
           description: No state yet
     post:
@@ -108,8 +112,10 @@ paths:
               schema:
                 type: object
                 properties:
-                  userId: { type: string }
-                  data: { type: object }
+                  userId:
+                    type: string
+                  data:
+                    type: object
 ```
 
 ### Calling guidance
