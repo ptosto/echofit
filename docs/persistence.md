@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS user_state (
 
 ## Worker API
 
-`src/worker.ts` exposes two simple endpoints that operate on `user_state`:
+`src/worker.ts` (or `src/worker.js` if you want to skip TypeScript) exposes two simple endpoints that operate on `user_state`:
 
 - `GET /state/{userId}` returns the stored JSON for that user or `404` if none exists yet.
 - `POST /state/{userId}` merges the provided JSON body into the current state and upserts it. This keeps the store schema-free for now while still letting the GPT accumulate knowledge.
@@ -35,10 +35,10 @@ Responses are JSON and include the `userId` alongside the persisted `data`.
 
 2. Bind the D1 database in your `wrangler.toml` as `MY_DB` so the worker can access it.
 
-3. Deploy or run locally with Wrangler. Example local run:
+3. Deploy or run locally with Wrangler. Example local run using the JS worker:
 
    ```bash
-   wrangler dev src/worker.ts --local
+   wrangler dev src/worker.js --local
    ```
 
 This keeps persistence flexible while you iterate on how the GPT captures user attributes, goals, weekly plans, and feedback.
