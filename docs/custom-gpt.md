@@ -59,24 +59,25 @@ Paste the following schema into the GPT action definition (replace nothing—thi
 ```yaml
 openapi: 3.1.0
 info:
-  title: User state store
+  title: EchoFit State API
   version: 1.0.0
+  description: Store and retrieve user state for EchoFit PoC.
 servers:
   - url: https://crimson-tree-74b8.pry94dkr48.workers.dev
 paths:
   /state/{userId}:
     get:
-      operationId: getState
-      summary: Get the current JSON state for a user
+      operationId: get_state
+      summary: Retrieve the user's saved state
       parameters:
-        - in: path
-          name: userId
+        - name: userId
+          in: path
           required: true
           schema:
             type: string
       responses:
         "200":
-          description: Found
+          description: Successfully retrieved user state
           content:
             application/json:
               schema:
@@ -86,14 +87,15 @@ paths:
                     type: string
                   data:
                     type: object
+                    additionalProperties: true
         "404":
-          description: No state yet
+          description: User not found
     post:
-      operationId: saveState
-      summary: Merge and save JSON state for a user
+      operationId: save_state
+      summary: Save or update the user's state
       parameters:
-        - in: path
-          name: userId
+        - name: userId
+          in: path
           required: true
           schema:
             type: string
@@ -103,11 +105,59 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON object representing the user’s state
+              properties:
+                profile:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    age:
+                      type: integer
+                    equipment:
+                      type: array
+                      items:
+                        type: string
+                    constraints:
+                      type: array
+                      items:
+                        type: string
+                goals:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                      priority:
+                        type: string
+                      notes:
+                        type: string
+                schedule:
+                  type: object
+                  properties:
+                    timezone:
+                      type: string
+                    days:
+                      type: array
+                      items:
+                        type: string
+                plan:
+                  type: object
+                  additionalProperties: true
+                history:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+                adjustments:
+                  type: array
+                  items:
+                    type: string
               additionalProperties: true
-              description: Partial state to merge with the current blob
       responses:
         "200":
-          description: Upserted state
+          description: Successfully saved the user state
           content:
             application/json:
               schema:
@@ -117,14 +167,15 @@ paths:
                     type: string
                   data:
                     type: object
+                    additionalProperties: true
 ```
 
 ### Calling guidance
 
-- **Load state first**: On new conversations or when resuming, call `getState` with the collected `userId`. If `404`, start with an empty object.
+- **Load state first**: On new conversations or when resuming, call `get_state` with the collected `userId`. If `404`, start with an empty object.
 - **Ask before writing**: If the `userId` is not yet known, ask for it before calling the action.
-- **Save after meaningful updates**: After setting goals, creating plans, or logging feedback, call `saveState` with only the fields that changed. The worker merges the incoming JSON into the stored blob.
-- **State merging**: Because `saveState` shallow-merges top-level keys, send the full value of any nested object you want to overwrite (e.g., the entire `plan` for the week).
+- **Save after meaningful updates**: After setting goals, creating plans, or logging feedback, call `save_state` with only the fields that changed. The worker merges the incoming JSON into the stored blob.
+- **State merging**: Because `save_state` shallow-merges top-level keys, send the full value of any nested object you want to overwrite (e.g., the entire `plan` for the week).
 - **Be transparent**: Briefly confirm to the user when their preferences or progress have been saved.
 
 With these tightened instructions and the `user_state` action, EchoFit Coach can iteratively learn about each user and adapt plans without schema migrations.
